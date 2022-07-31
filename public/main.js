@@ -19,7 +19,8 @@ class Player {
         return this.player.currentTime
     }
     set time(t) {
-        this.player.currentTime = t
+        this.player.currentTime = t / 1000
+        console.log("Set time", t, this.player.currentTime);
     }
 
     set master(m) {
@@ -40,13 +41,17 @@ class Player {
     }
 
     set track(data) {
-        $("#playBtn").attr("disabled", false)
-        data = $.parseJSON(data)
+        // $("#playBtn").attr("disabled", false)
+        // data = $.parseJSON(data)
         this._track = data
         $("#track").val(data.src)
         $("#trackH3").html(data.src)
         $("#audio").attr("src", 'tracks/' + data.src);
-        this.master = data.master;
+
+        this.master = data.master
+
+        this.delay = data.delay
+        // this.master = data.master;
         this.checkReady()
     }
 
@@ -56,10 +61,18 @@ class Player {
     }
 
     play() {
+        console.log("PLAY");
         $("#underlay").addClass("active");
-        this.time = Date.now() - this.start + this.delay
+        // let ct = (Date.now() - this.start + this._delay)/1000
         $(this.player).prop("muted", false);
+
         this.player.play()
+        this.time = Date.now() - this.start
+        // this.player.play()
+        // setTimeout(() =>{
+        //     //TODO: perchè devi aspettare 500ms dopo il play altrimenti non va il curretnTime?
+        //     this.player.currentTime = 100
+        // }, 500)
         this.check()
     }
 
@@ -106,20 +119,35 @@ class Player {
             if (p.player.readyState == 4 || p.player.readyState == 3 || p.player.readyState == 1) {
                 console.log("READY");
                 // $("#playBtn").attr("disabled", false)
+                console.log("CRISTO", (Date.now() - p.start + p._delay) / 1000);
+                p.currentTime = (Date.now() - p.start + p._delay) / 1000
                 p.play()
             } else {
                 console.log("NOT READY", p.player.readyState);
                 p.checkReady();
             }
         }, 1000)
+        // console.log(this.player);
+        // $(this.player).bind('canplay', function () {
+        //     this.currentTime = (Date.now() - p.start + p._delay) / 1000;
+        //     p.play()
+        // });
     }
+
 }
 var s;
 var p = new Player();
 
-let tracks = [] 
-getAllTracks();
-loadOut();
+let tracks = [];
+
+async function setup() {
+    console.log("Setup");
+    await getAllTracks();
+    await time();
+    await track();
+    // p.play()
+    loadOut();
+}
 
 
 
@@ -131,16 +159,28 @@ function loadIn() {
     $("#loading").fadeIn(100);
 }
 
-function begin() {
+async function time() {
+    console.log("getting time");
     // s = Date.now();
-    fetch("/time").then(res => res.json()).then((res) => {
+    await fetch("/time").then(res => res.json()).then((res) => {
         $("#check").html(res);
+        console.log("start", res);
         p.start = res
+        // console.log(res);
+        // p.time = Date.now() - res
     })
 }
 
-function getAllTracks() {
-    fetch("/all_tracks").then(res => res.json()).then((res) => {
+async function track() {
+    console.log("getting track");
+    await fetch("/track").then(res => res.json()).then((res) => {
+        console.log("Track: ", res);
+        p.track = res
+    })
+}
+
+async function getAllTracks() {
+    await fetch("/all_tracks").then(res => res.json()).then((res) => {
         tracks = res
         res.forEach((t) => {
             let track = document.createElement("option")
@@ -152,6 +192,7 @@ function getAllTracks() {
 }
 
 function startServer() {
+    console.log("starting server");
     fetch("/start").then(res => res.json()).then((res) => {
         if (res == 1) console.log("Server started correctly")
         alert("Server started counting");

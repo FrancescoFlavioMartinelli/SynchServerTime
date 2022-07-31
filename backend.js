@@ -16,9 +16,8 @@ class Controller {
   }
 
   get track(){
-
     let picked = this._tracks.reduce((pick, t)=>{
-      pick = pick.istances > t.istances ? t : pick
+      return pick.istances > t.istances ? t : pick
     })
     picked.istances++
     return picked
@@ -62,18 +61,18 @@ setupTracks();
 function getCurrentTime() {
   let d = Date.now() - startTime
   if(d > duration) {
-    loopBackTime()
-    return d -= duration
+    startTime = startTime + duration
   }
-  return  d;
+  console.log("Giving ", startTime);
+  return  startTime
 }
 
-async function loopBackTime() {
-  return new Promise((succ, err)=>{
-    startTime = startTime + duration
-    succ(1)
-  })
-}
+// async function loopBackTime() {
+//   return new Promise((succ, err)=>{
+//     startTime = startTime + duration
+//     succ(1)
+//   })
+// }
 
 function setupTracks(){
 //   connection.query(trackQuery, function(err, rows, fields) {

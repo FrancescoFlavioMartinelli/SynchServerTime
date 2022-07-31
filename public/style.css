@@ -40,7 +40,7 @@ body {
     top: 0;
     left: 0;
     z-index: 9999999;
-    pointer-events: none;
+    /* pointer-events: none; */
     background-color: rgba(0, 0, 0, 0.842);
     display: flex;
     justify-content: center;
