@@ -120,6 +120,8 @@ var p = new Player();
 getAllTracks();
 loadOut();
 
+let tracks = [] 
+
 
 function loadOut() {
     $("#loading").fadeOut(100);
@@ -139,6 +141,7 @@ function begin() {
 
 function getAllTracks() {
     fetch("/all_tracks").then(res => res.json()).then((res) => {
+        tracks = res
         res.forEach((t) => {
             let track = document.createElement("option")
             track.value = JSON.stringify(t)
