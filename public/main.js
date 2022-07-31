@@ -117,10 +117,10 @@ class Player {
 var s;
 var p = new Player();
 
+let tracks = [] 
 getAllTracks();
 loadOut();
 
-let tracks = [] 
 
 
 function loadOut() {
